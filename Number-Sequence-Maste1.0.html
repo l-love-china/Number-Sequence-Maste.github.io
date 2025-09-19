@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sequence Master 数字序列大师</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: #0d0d0d;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .lang-btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .lang-btn.active {
+            background: #00ff00;
+            color: #000;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .sequence-display {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .input-section {
+            margin: 20px 0;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #000;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px 0;
+        }
+        
+        button:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .message {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            min-height: 30px;
+        }
+        
+        .success {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .error {
+            color: #ff0000;
+            text-shadow: 0 0 5px #ff0000;
+        }
+        
+        .rules {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 600px) {
+            .sequence-display {
+                font-size: 18px;
+                letter-spacing: 5px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .language-toggle {
+                position: static;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-toggle">
+        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" onclick="setLanguage('zh')">中文</button>
+    </div>
+
+    <div class="game-container">
+        <h1 id="gameTitle">NUMBER SEQUENCE MASTER</h1>
+        <p class="subtitle" id="subtitle">The World's Most Boring Difficult Game | 世界上最无聊又困难的游戏</p>
+        
+        <div class="rules">
+            <strong id="howToPlay">HOW TO PLAY:</strong><br>
+            <span id="rulesText">
+                • A sequence of numbers will appear<br>
+                • Find the pattern and predict the next number<br>
+                • Patterns get harder with each level<br>
+                • Wrong answers reset your progress<br>
+                • Warning: This game is extremely frustrating
+            </span>
+        </div>
+        
+        <div class="stats">
+            <span id="levelText">Level: <strong id="level">1</strong></span>
+            <span id="scoreText">Score: <strong id="score">0</strong></span>
+            <span id="streakText">Streak: <strong id="streak">0</strong></span>
+        </div>
+        
+        <div class="sequence-display" id="sequenceDisplay">
+            Press START to begin your suffering | 点击开始体验痛苦
+        </div>
+        
+        <div class="input-section">
+            <input type="number" id="userInput" placeholder="Enter next number | 输入下一个数字" disabled>
+            <button id="submitBtn" onclick="checkAnswer()" disabled>SUBMIT ANSWER | 提交答案</button>
+            <button id="startBtn" onclick="startGame()">START GAME | 开始游戏</button>
+            <button id="hintBtn" onclick="showHint()" disabled>SHOW HINT (Costs 5 points) | 显示提示（消耗5分）</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+        let currentSequence = [];
+        let currentPattern = null;
+        let level = 1;
+        let score = 0;
+        let streak = 0;
+        let gameActive = false;
+
+        const translations = {
+            en: {
+                gameTitle: "NUMBER SEQUENCE MASTER",
+                subtitle: "The World's Most Boring Difficult Game",
+                howToPlay: "HOW TO PLAY:",
+                rules: "• A sequence of numbers will appear<br>• Find the pattern and predict the next number<br>• Patterns get harder with each level<br>• Wrong answers reset your progress<br>• Warning: This game is extremely frustrating",
+                level: "Level:",
+                score: "Score:",
+                streak: "Streak:",
+                startButton: "START GAME",
+                restartButton: "RESTART GAME",
+                submitButton: "SUBMIT ANSWER",
+                hintButton: "SHOW HINT (Costs 5 points)",
+                inputPlaceholder: "Enter next number",
+                startMessage: "Press START to begin your suffering",
+                correctMessage: "Correct! The answer was ",
+                wrongMessage: "Wrong! The answer was ",
+                levelComplete: "Moving to level ",
+                gameComplete: "Congratulations! You've completed all patterns! You must be very bored.",
+                notEnoughPoints: "Not enough points for a hint! Need 5 points.",
+                hintPrefix: "Hint: "
+            },
+            zh: {
+                gameTitle: "数字序列大师",
+                subtitle: "世界上最无聊又困难的游戏",
+                howToPlay: "游戏规则：",
+                rules: "• 会显示一组数字序列<br>• 找出规律并预测下一个数字<br>• 每关难度递增<br>• 答错会重置进度<br>• 警告：此游戏极其令人沮丧",
+                level: "关卡：",
+                score: "分数：",
+                streak: "连击：",
+                startButton: "开始游戏",
+                restartButton: "重新开始",
+                submitButton: "提交答案",
+                hintButton: "显示提示（消耗5分）",
+                inputPlaceholder: "输入下一个数字",
+                startMessage: "点击开始体验痛苦",
+                correctMessage: "正确！答案是 ",
+                wrongMessage: "错误！答案是 ",
+                levelComplete: "进入第 ",
+                gameComplete: "恭喜！你完成了所有关卡！你一定很无聊。",
+                notEnoughPoints: "分数不足！需要5分才能显示提示。",
+                hintPrefix: "提示："
+            }
+        };
+
+        const patterns = [
+            // Level 1-5: Simple patterns
+            { 
+                name: "Add 2", 
+                nameZh: "加2", 
+                generator: (n) => n * 2, 
+                sequence: [2, 4, 6, 8], 
+                hint: "Adding same number each time", 
+                hintZh: "每次都加相同的数字" 
+            },
+            { 
+                name: "Multiply by 2", 
+                nameZh: "乘以2", 
+                generator: (n) => Math.pow(2, n + 1), 
+                sequence: [2, 4, 8, 16], 
+                hint: "Each number doubles", 
+                hintZh: "每个数字翻倍" 
+            },
+            { 
+                name: "Square numbers", 
+                nameZh: "平方数", 
+                generator: (n) => (n + 1) * (n + 1), 
+                sequence: [1, 4, 9, 16], 
+                hint: "Think of perfect squares", 
+                hintZh: "想想完全平方数" 
+            },
+            { 
+                name: "Fibonacci", 
+                nameZh: "斐波那契", 
+                generator: null, 
+                sequence: [1, 1, 2, 3], 
+                hint: "Each number is sum of two previous", 
+                hintZh: "每个数是前两个数之和" 
+            },
+            { 
+                name: "Prime numbers", 
+                nameZh: "质数", 
+                generator: null, 
+                sequence: [2, 3, 5, 7], 
+                hint: "Only divisible by 1 and itself", 
+                hintZh: "只能被1和自己整除" 
+            },
+            
+            // Level 6-10: Medium patterns
+            { 
+                name: "Add increasing", 
+                nameZh: "递增相加", 
+                generator: (n) => (n * (n + 1)) / 2 + 1, 
+                sequence: [1, 2, 4, 7], 
+                hint: "Differences increase by 1", 
+                hintZh: "差值每次增加1" 
+            },
+            { 
+                name: "Multiply and add", 
+                nameZh: "乘加混合", 
+                generator: (n) => n * 2 + 1, 
+                sequence: [1, 3, 7, 15], 
+                hint: "Multiply by 2, then add 1", 
+                hintZh: "乘以2，然后加1" 
+            },
+            { 
+                name: "Alternating add/subtract", 
+                nameZh: "交替加减", 
+                generator: null, 
+                sequence: [1, 3, 2, 4], 
+                hint: "Add 2, subtract 1, repeat", 
+                hintZh: "加2，减1，重复" 
+            },
+            { 
+                name: "Cube numbers", 
+                nameZh: "立方数", 
+                generator: (n) => (n + 1) * (n + 1) * (n + 1), 
+                sequence: [1, 8, 27, 64], 
+                hint: "Numbers cubed", 
+                hintZh: "数字的立方" 
+            },
+            { 
+                name: "Factorial", 
+                nameZh: "阶乘", 
+                generator: (n) => n === 0 ? 1 : Array.from({length: n + 1}, (_, i) => i + 1).reduce((a, b) => a * b, 1), 
+                sequence: [1, 2, 6, 24], 
+                hint: "Multiply by increasing numbers", 
+                hintZh: "乘以递增的数字" 
+            },
+            
+            // Level 11-15: Hard patterns
+            { 
+                name: "Tribonacci", 
+                nameZh: "三阶斐波那契", 
+                generator: null, 
+                sequence: [1, 1, 2, 4], 
+                hint: "Sum of previous three numbers", 
+                hintZh: "前三个数之和" 
+            },
+            { 
+                name: "Pascal triangle", 
+                nameZh: "帕斯卡三角", 
+                generator: null, 
+                sequence: [1, 3, 6, 10], 
+                hint: "Triangle numbers", 
+                hintZh: "三角数" 
+            },
+            { 
+                name: "Look and say", 
+                nameZh: "看并说", 
+                generator: null, 
+                sequence: [1, 11, 21, 1211], 
+                hint: "Describe previous number", 
+                hintZh: "描述前一个数字" 
+            },
+            { 
+                name: "Lucas numbers", 
+                nameZh: "卢卡斯数", 
+                generator: null, 
+                sequence: [2, 1, 3, 4], 
+                hint: "Like Fibonacci but different start", 
+                hintZh: "类似斐波那契但起始不同" 
+            },
+            { 
+                name: "Catalan numbers", 
+                nameZh: "卡特兰数", 
+                generator: (n) => [1, 1, 2, 5, 14, 42, 132][n], 
+                sequence: [1, 1, 2, 5], 
+                hint: "Combinatorial mathematics", 
+                hintZh: "组合数学" 
+            }
+        ];
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update all text elements
+            const t = translations[lang];
+            document.getElementById('gameTitle').textContent = t.gameTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('howToPlay').textContent = t.howToPlay;
+            document.getElementById('rulesText').innerHTML = t.rules;
+            document.getElementById('levelText').innerHTML = t.level + ' <strong id="level">' + level + '</strong>';
+            document.getElementById('scoreText').innerHTML = t.score + ' <strong id="score">' + score + '</strong>';
+            document.getElementById('streakText').innerHTML = t.streak + ' <strong id="streak">' + streak + '</strong>';
+            
+            // Update button texts
+            const startBtn = document.getElementById('startBtn');
+            startBtn.textContent = gameActive ? t.restartButton : t.startButton;
+            
+            document.getElementById('submitBtn').textContent = t.submitButton;
+            document.getElementById('hintBtn').textContent = t.hintButton;
+            document.getElementById('userInput').placeholder = t.inputPlaceholder;
+            
+            // Update sequence display if game hasn't started
+            if (!gameActive) {
+                document.getElementById('sequenceDisplay').textContent = t.startMessage;
+            }
+            
+            // Update message if there's one showing
+            const message = document.getElementById('message');
+            if (message.textContent && message.textContent !== '') {
+                // Keep the current message but it will be in the previous language
+                // This is fine as messages are temporary
+            }
+        }
+
+        function startGame() {
+            gameActive = true;
+            level = 1;
+            score = 0;
+            streak = 0;
+            updateStats();
+            generateSequence();
+            document.getElementById('userInput').disabled = false;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('startBtn').textContent = translations[currentLanguage].restartButton;
+            document.getElementById('hintBtn').disabled = false;
+            showMessage(translations[currentLanguage].correctMessage + '- ' + translations[currentLanguage].startMessage, 'success');
+        }
+
+        function generateSequence() {
+            const patternIndex = Math.min(Math.floor((level - 1) / 3), patterns.length - 1);
+            currentPattern = patterns[patternIndex];
+            
+            if (currentPattern.name === "Look and say") {
+                currentSequence = generateLookAndSaySequence();
+            } else if (currentPattern.name === "Fibonacci" || currentPattern.name === "Tribonacci" || 
+                      currentPattern.name === "Lucas numbers" || currentPattern.name === "Pascal triangle") {
+                currentSequence = currentPattern.sequence.slice();
+            } else if (currentPattern.generator) {
+                currentSequence = currentPattern.sequence.slice();
+            } else {
+                currentSequence = currentPattern.sequence.slice();
+            }
+            
+            displaySequence();
+        }
+
+        function generateLookAndSaySequence() {
+            let sequence = ["1"];
+            for (let i = 1; i < 4; i++) {
+                let prev = sequence[i - 1];
+                let next = "";
+                let count = 1;
+                for (let j = 1; j < prev.length; j++) {
+                    if (prev[j] === prev[j - 1]) {
+                        count++;
+                    } else {
+                        next += count + prev[j - 1];
+                        count = 1;
+                    }
+                }
+                next += count + prev[prev.length - 1];
+                sequence.push(next);
+            }
+            return sequence.map(s => parseInt(s));
+        }
+
+        function displaySequence() {
+            const display = document.getElementById('sequenceDisplay');
+            display.textContent = currentSequence.join(' ');
+        }
+
+        function getNextNumber() {
+            if (currentPattern.name === "Fibonacci") {
+                const len = currentSequence.length;
+                return currentSequence[len - 1] + currentSequence[len - 2];
+            } else if (currentPattern.name === "Tribonacci") {
+                const len = currentSequence.length;
+                return currentSequence[len - 1] + currentSequence[len - 2] + currentSequence[len - 3];
+            } else if (currentPattern.name === "Lucas numbers") {
+                const len = currentSequence.length;
+                return currentSequence[len - 1] + currentSequence[len - 2];
+            } else if (currentPattern.name === "Pascal triangle") {
+                const len = currentSequence.length;
+                return currentSequence[len - 1] + (len + 1);
+            } else if (currentPattern.name === "Look and say") {
+                const prev = currentSequence[currentSequence.length - 1].toString();
+                let next = "";
+                let count = 1;
+                for (let j = 1; j < prev.length; j++) {
+                    if (prev[j] === prev[j - 1]) {
+                        count++;
+                    } else {
+                        next += count + prev[j - 1];
+                        count = 1;
+                    }
+                }
+                next += count + prev[prev.length - 1];
+                return parseInt(next);
+            } else if (currentPattern.generator) {
+                return currentPattern.generator(currentSequence.length);
+            } else {
+                // For simple arithmetic patterns
+                const diff = currentSequence[1] - currentSequence[0];
+                return currentSequence[currentSequence.length - 1] + diff;
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('userInput').value);
+            const correctAnswer = getNextNumber();
+            const t = translations[currentLanguage];
+            
+            if (userAnswer === correctAnswer) {
+                score += level * 10;
+                streak++;
+                level++;
+                showMessage(t.correctMessage + correctAnswer + '. ' + t.levelComplete + level + '...', 'success');
+                
+                if (level > patterns.length * 3) {
+                    showMessage(t.gameComplete, 'success');
+                    endGame();
+                } else {
+                    setTimeout(() => {
+                        generateSequence();
+                        document.getElementById('userInput').value = '';
+                    }, 2000);
+                }
+            } else {
+                streak = 0;
+                score = Math.max(0, score - 5);
+                showMessage(t.wrongMessage + correctAnswer + '. ' + t.levelText.replace(':', '') + ' ' + level + '.', 'error');
+                setTimeout(() => {
+                    generateSequence();
+                    document.getElementById('userInput').value = '';
+                }, 2000);
+            }
+            
+            updateStats();
+        }
+
+        function showHint() {
+            const t = translations[currentLanguage];
+            if (score >= 5) {
+                score -= 5;
+                updateStats();
+                const hint = currentLanguage === 'zh' ? currentPattern.hintZh : currentPattern.hint;
+                showMessage(t.hintPrefix + hint, 'success');
+            } else {
+                showMessage(t.notEnoughPoints, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message ' + type;
+        }
+
+        function updateStats() {
+            const t = translations[currentLanguage];
+            document.getElementById('level').textContent = level;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            
+            // Update stat labels
+            document.getElementById('levelText').innerHTML = t.level + ' <strong id="level">' + level + '</strong>';
+            document.getElementById('scoreText').innerHTML = t.score + ' <strong id="score">' + score + '</strong>';
+            document.getElementById('streakText').innerHTML = t.streak + ' <strong id="streak">' + streak + '</strong>';
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('userInput').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('hintBtn').disabled = true;
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('submitBtn').disabled) {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
